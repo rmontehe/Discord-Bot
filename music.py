@@ -150,16 +150,16 @@ class Player(commands.Cog): # declare a class named player
     async def skip(self, ctx):
         user = ctx.author
 
-        if ctx.voice_client is None:
-            return await ctx.send("**A song is not playing currently.**")
-
-        if user.voice is None:
+        if user.voice is None: # if the user is not connected to a voice channel
             return await ctx.send("**Please connect to a voice Channel to interact with Beep Boop.**")
 
-        if user.voice.channel != ctx.voice_client.channel:
+        if ctx.voice_client is not None and user.voice.channel != ctx.voice_client.channel: # if the bot is in a channel AND the user is not in the same channel
             return await ctx.send("**Beep Boop is not in your current Voice Channel.**")
 
-        poll = discord.Embed(title=f"Vote to Skip Song by - {ctx.author.name}#{ctx.author.discriminator}", description="**80% of the voice channel must vote to skip for it to pass.**", colour=discord.Colour.blue())
+        if ctx.voice_client is not None and ctx.voice_client.is_playing() is not True: # if bot is in a voice channel AND bot is not playing something AND the user is in the same channel
+            return await ctx.send("**A song is not playing currently.**")
+
+        poll = discord.Embed(title=f"Vote to Skip Song by - {ctx.author.name}#{ctx.author.discriminator}", description="**50% of the voice channel must vote to skip for it to pass.**", colour=discord.Colour.blue())
         poll.add_field(name="Skip", value = ":white_check_mark:")
         poll.add_field(name = "Stay", value = ":no_entry_sign:")
         poll.set_footer(text="Voting ends in 15 seconds.")
@@ -172,13 +172,15 @@ class Player(commands.Cog): # declare a class named player
 
         await asyncio.sleep(15) # 15 seconds to Vote
 
+        poll_msg = await ctx.channel.fetch_message(poll_id)
+
         votes = {u"\u2705": 0, u"\U0001F6AB": 0}
         reacted = []
 
         for reaction in poll_msg.reactions:
             if reaction.emoji in [u"\u2705", u"\U0001F6AB"]: # if the emoji is one of the yes or no emojis
                 async for user in reaction.users(): # loop through each user that has reacted
-                    if user.voice.channel == ctx.voice_client.channel and user.id not in reacted and not user.bot: # (1) user is in same voice channel as bot, (2) user is not in reacted, (3) user is not a bot
+                    if user.voice.channel.id == ctx.voice_client.channel.id and user.id not in reacted and not user.bot: # (1) user is in same voice channel as bot, (2) user is not in reacted, (3) user is not a bot
                         votes[reaction.emoji] += 1
 
                         reacted.append(user.id)
@@ -186,13 +188,13 @@ class Player(commands.Cog): # declare a class named player
         skip = False
 
         if votes[u"\u2705"] > 0:
-            if votes[u"\U0001F6AB"] == 0 or votes[u"\u2705"] / (votes[u"\U0001F6AB"] + votes[u"\u2705"]) > 0.79: # if no one voted no, or if the percentage of people who want to skip is > 80%
+            if votes[u"\U0001F6AB"] == 0 or votes[u"\u2705"] / (votes[u"\U0001F6AB"] + votes[u"\u2705"]) > 0.49: # if no one voted no, or if the percentage of people who want to skip is > 50%
                 skip = True # reset the value of skip to true
                 embed = discord.Embed(title="Skip Successful", description="***Voting to skip the current song was successful, skipping now.***", colour= discord.Colour.dark_gold())
 
 
         if not skip: # if skip is not true, if at the end we should not skip
-            embed = discord.Embed(title="Skip Successful", description="***Voting to skip the current song was successful, skipping now.***", colour= discord.Colour.dark_gold())
+            embed = discord.Embed(title="Skip Unsuccessful", description="***Voting to skip the current song has failed.\n\n Voting failed, the vote requires at least 50% of the members to skip.***", colour= discord.Colour.red())
 
         embed.set_footer(text="Voting has ended.")
 
