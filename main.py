@@ -1,9 +1,11 @@
 # import relevant python libraries
 import discord
+from discord.ext import commands
 import os
 from dotenv import load_dotenv # python library that allows you to load variables from a .env file
 from music import Player
 from api import API_Vendor
+from welcome import Intercom
 
 load_dotenv() # loads the .env variables to the
 
@@ -20,6 +22,7 @@ async def setup():
     await client.wait_until_ready()
     client.add_cog(Player(client))
     client.add_cog(API_Vendor(client))
+    client.add_cog(Intercom(client))
 
 
 #########################################

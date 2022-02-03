@@ -103,6 +103,11 @@ class Player(commands.Cog): # declare a class named player
             song_url = results[0]["webpage_url"] # assign a variable the url string value
             song_name = results[0]["title"] # assign a variable the video title string value
 
+        if ("youtube.com/watch?" in song or "http://youtu.be/" in song):
+            song_url = song
+            results = await self.search_song(1, song, get_url=True)
+            song_name = results[0]["title"]
+
         if ctx.voice_client.source is not None and ctx.voice_client.is_playing(): # if there is something playing
             queue_len = len(self.song_queue_url[ctx.guild.id]) # retrieves the length of the song queue for the server
 
