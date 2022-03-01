@@ -10,7 +10,7 @@ from discord.ext import commands
 
 
 class Intercom(commands.Cog): # declare a class named player
-    def __init__(self,bot):
+    def __init__(self, bot):
         self.bot = bot
         self.voice_states = {}
 
@@ -135,6 +135,9 @@ class Intercom(commands.Cog): # declare a class named player
             await self.play_song(voice_client, song_queue_url[guildID][0]) # play the first song in the queue list for this particular server
             song_queue_url[guildID].pop(0) # remove the first song from the queue list
             song_queue_name[guildID].pop(0) # remove the first song from the queue list
+
+        else:
+            return
 
 
 

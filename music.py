@@ -25,6 +25,9 @@ class Player(commands.Cog): # declare a class named player
             self.song_queue_url[ctx.guild.id].pop(0) # remove the first song from the queue list
             self.song_queue_name[ctx.guild.id].pop(0) # remove the first song from the queue list
 
+        else:
+            return
+
 
     async def search_song(self, amount, song, get_url=False): # amount = amount of songs we want, the song you want to look up, whether you want to get the url
 

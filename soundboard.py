@@ -16,6 +16,7 @@ class Soundboard(commands.Cog): # declare a class named player
         self.setup()
         print("Initializing Soundboard...")
 
+
     async def play_sound(self, voice_client, sound): # ctx is the Context, song is the url link of the song that you want to play
 
         voice_client.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source = sound, pipe = True)))
@@ -44,8 +45,118 @@ class Soundboard(commands.Cog): # declare a class named player
             song_queue_url[guildID].pop(0) # remove the first song from the queue list
             song_queue_name[guildID].pop(0) # remove the first song from the queue list
 
+        else:
+            return
+
 
 
     def setup(self):
         for guild in self.bot.guilds: # for each server that the bot is in, create an empty list variable to store songs for the queue
             self.voice_states[guild.id] = [] # creates a list containing the voice client for each server that the bot is in
+
+
+    @commands.command()
+    async def sb(self, ctx, sound):
+
+        soundboardDir = os.listdir(f"./soundboard") # assign the directory to a variable
+
+        if len(soundboardDir) == 0: # if there is no file in the user's directory
+            print ("There are currently no sounds.") # print this message to the command prompt
+            return await ctx.send("**There are currently no sounds.**")
+
+        else: # if there is only one file in the user's directory
+
+            for file_name in soundboardDir:
+                sound = sound.lower() # make sure that the input is all lowercase
+                if sound in file_name:
+                    sound = file_name
+
+
+            if ".mp3" not in sound:
+                return await ctx.send("**No sound with this name.**")
+
+            guildID = ctx.guild.id
+            for voice_client in self.bot.voice_clients: # for each voice client instance of the bot
+                if guildID is voice_client.guild.id: # if the guild id of the member matches the guild id of the voice client
+                    voice = voice_client  # store this voice client as a variable
+
+            soundpath = f"./soundboard/{sound}"
+
+            if voice.is_playing() is True: # this produces an error, hopefully we can acess voice client objects of the player
+
+                print("Beep Boop is playing music")
+                voice.pause() # pause the music that is currently playing
+                print("Music Paused")
+                music = voice.source # save the source of the music as a variable
+
+                sound = open(soundpath, "r")
+                print("Sleeping music function to play soundboard-sound")
+                play = asyncio.create_task(self.play_sound(voice, sound)) # in those 7 seconds allow the sound file to play
+                await asyncio.sleep(7) # make the bot sleep for 7 seconds
+                print("Sound Played")
+                voice.stop() # stop the voice client so that you can start the music again, the music cannot start again if already playing something
+
+                sound.close() # after the sound file is done playing, close the sound file
+
+                await self.play_song(voice, music) # start playing the music again
+
+            else:
+
+                print("Beep Boop is not playing anything.")
+                sound = open(soundpath, "r")
+                await self.play_sound(voice, sound)
+                sound.close()
+
+    @commands.command()
+    async def rand_sb(self, ctx):
+
+        soundboardDir = os.listdir(f"./soundboard") # assign the directory to a variable
+
+        randomIndex = random.randint(0, (len(soundboardDir) -1)) # generate a random index within the range of the length of the directory
+        sound = soundboardDir[randomIndex]
+
+        guildID = ctx.guild.id
+        for voice_client in self.bot.voice_clients: # for each voice client instance of the bot
+            if guildID is voice_client.guild.id: # if the guild id of the member matches the guild id of the voice client
+                voice = voice_client  # store this voice client as a variable
+
+        soundpath = f"./soundboard/{sound}"
+
+        if voice.is_playing() is True: # this produces an error, hopefully we can acess voice client objects of the player
+
+            print("Beep Boop is playing music")
+            voice.pause() # pause the music that is currently playing
+            print("Music Paused")
+            music = voice.source # save the source of the music as a variable
+
+            sound = open(soundpath, "r")
+            print("Sleeping music function to play soundboard-sound")
+            play = asyncio.create_task(self.play_sound(voice, sound)) # in those 7 seconds allow the sound file to play
+            await asyncio.sleep(7) # make the bot sleep for 7 seconds
+            print("Sound Played")
+            voice.stop() # stop the voice client so that you can start the music again, the music cannot start again if already playing something
+
+            sound.close() # after the sound file is done playing, close the sound file
+
+            await self.play_song(voice, music) # start playing the music again
+
+        else:
+
+            print("Beep Boop is not playing anything.")
+            sound = open(soundpath, "r")
+            await self.play_sound(voice, sound)
+            sound.close()
+
+    @commands.command()
+    async def sounds(self, ctx): # display the current server/guild's queue
+
+        soundboardDir = os.listdir(f"./soundboard") # assign the directory to a variable
+
+        embed = discord.Embed(title="Soundboard Sounds", description="", colour=discord.Colour.dark_gold())
+
+        for sound in soundboardDir:
+            sound = sound.replace('.mp3','') # strings are immutable, cannot be changed
+            embed.description += f"- {sound}\n"
+
+        embed.set_footer(text="Use '!sb (sound)' to use the Soundboard.")
+        await ctx.send(embed=embed)

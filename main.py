@@ -6,6 +6,7 @@ from dotenv import load_dotenv # python library that allows you to load variable
 from music import Player
 from api import API_Vendor
 from welcome import Intercom
+from soundboard import Soundboard
 
 load_dotenv() # loads the .env variables to the
 
@@ -23,6 +24,7 @@ async def setup():
     client.add_cog(Player(client))
     client.add_cog(API_Vendor(client))
     client.add_cog(Intercom(client))
+    client.add_cog(Soundboard(client))
 
 
 #########################################
