@@ -98,7 +98,60 @@ class Intercom(commands.Cog): # declare a class named player
 
 
 
+    @commands.command()
+    async def test(self, ctx):
+        user = ctx.author
 
+        if user.voice is None: # if the user is not connected to a voice channel
+            return await ctx.send("**Please connect to a voice Channel to interact with Beep Boop.**")
+
+        if ctx.voice_client is not None and user.voice.channel != ctx.voice_client.channel: # if the bot is in a channel AND the user is not in the same channel
+            return await ctx.send("**Beep Boop is not in your current Voice Channel.**")
+
+        poll = discord.Embed(title=f"Beep Boop Soundboard Sounds", description="**Use '!sb {sound}' to play the sound you want.**", colour=discord.Colour.blue())
+        poll.add_field(name="Previous", value = ":arrow_left:")
+        poll.add_field(name = "Next", value = ":arrow_right")
+#        poll.set_footer(text="Voting ends in 15 seconds.")
+
+        poll_msg = await ctx.send(embed=poll) # only returns temporary message, we need to get the cached message to get the reactions,
+        poll_id = poll_msg.id
+
+        await poll_msg.add_reaction(u"\u2190") # left arrow
+        await poll_msg.add_reaction(u"\u2192") # right arrow
+
+        await asyncio.sleep(15) # 15 seconds to Vote
+
+        poll_msg = await ctx.channel.fetch_message(poll_id)
+
+        votes = {u"\u2705": 0, u"\U0001F6AB": 0}
+        reacted = []
+
+        for reaction in poll_msg.reactions:
+            if reaction.emoji in [u"\u2705", u"\U0001F6AB"]: # if the emoji is one of the yes or no emojis
+                async for user in reaction.users(): # loop through each user that has reacted
+                    if user.voice.channel.id == ctx.voice_client.channel.id and user.id not in reacted and not user.bot: # (1) user is in same voice channel as bot, (2) user is not in reacted, (3) user is not a bot
+                        votes[reaction.emoji] += 1
+
+                        reacted.append(user.id)
+
+        skip = False
+
+        if votes[u"\u2705"] > 0:
+            if votes[u"\U0001F6AB"] == 0 or votes[u"\u2705"] / (votes[u"\U0001F6AB"] + votes[u"\u2705"]) > 0.49: # if no one voted no, or if the percentage of people who want to skip is > 50%
+                skip = True # reset the value of skip to true
+                embed = discord.Embed(title="Skip Successful", description="***Voting to skip the current song was successful, skipping now.***", colour= discord.Colour.dark_gold())
+
+
+        if not skip: # if skip is not true, if at the end we should not skip
+            embed = discord.Embed(title="Skip Unsuccessful", description="***Voting to skip the current song has failed.\n\n Voting failed, the vote requires at least 50% of the members to skip.***", colour= discord.Colour.red())
+
+        embed.set_footer(text="Voting has ended.")
+
+        await poll_msg.clear_reactions()
+        await poll_msg.edit(embed=embed)
+
+        if skip:
+            ctx.voice_client.stop()
 
     async def play_sound(self, voice_client, sound): # ctx is the Context, song is the url link of the song that you want to play
 
