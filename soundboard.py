@@ -8,7 +8,7 @@ import time
 from music import Player
 from discord.ext import commands
 
-class Soundboard(commands.Cog): # declare a class named player
+class Soundboard(commands.Cog): # declare a class named soundboard
     def __init__(self,bot):
         self.bot = bot
         self.voice_states = {}
@@ -48,31 +48,34 @@ class Soundboard(commands.Cog): # declare a class named player
         else:
             return
 
-
-
     def setup(self):
         for guild in self.bot.guilds: # for each server that the bot is in, create an empty list variable to store songs for the queue
             self.voice_states[guild.id] = [] # creates a list containing the voice client for each server that the bot is in
 
 
+#########################################
+####### Defining User Commands  #########
+#########################################
+
     @commands.command()
-    async def sb(self, ctx, sound):
+    async def sb(self, ctx, sound): # define a command that allows users to indicate a sound that they would like played
+                                    # granted that the indicated sound file is in the soundboard directory
 
         soundboardDir = os.listdir(f"./soundboard") # assign the directory to a variable
 
         if len(soundboardDir) == 0: # if there is no file in the user's directory
-            print ("There are currently no sounds.") # print this message to the command prompt
-            return await ctx.send("**There are currently no sounds.**")
+            print ("There are currently no sounds.") # print this message to the terminal for developer's purposes
+            return await ctx.send("**There are currently no sounds.**") # send this message to the discord so users are aware
 
-        else: # if there is only one file in the user's directory
+        else: # if there are soundfiles in the soundboard folder
 
             for file_name in soundboardDir:
                 sound = sound.lower() # make sure that the input is all lowercase
-                if sound in file_name:
-                    sound = file_name
+                if sound in file_name: # if string is found in file file_name
+                    sound = file_name # sound variable is now the respective mp3 file
 
 
-            if ".mp3" not in sound:
+            if ".mp3" not in sound: # if there was no match, then the sound variable should not have the string .mp3
                 return await ctx.send("**No sound with this name.**")
 
             guildID = ctx.guild.id
@@ -140,7 +143,7 @@ class Soundboard(commands.Cog): # declare a class named player
 
             await self.play_song(voice, music) # start playing the music again
 
-        else:
+        else: # if the bot is not currently playing anything
 
             print("Beep Boop is not playing anything.")
             sound = open(soundpath, "r")
@@ -148,11 +151,11 @@ class Soundboard(commands.Cog): # declare a class named player
             sound.close()
 
     @commands.command()
-    async def sounds(self, ctx): # display the current server/guild's queue
+    async def sounds(self, ctx): # define a command that displays the sounds in the soundbaord directory
 
         soundboardDir = os.listdir(f"./soundboard") # assign the directory to a variable
 
-        embed = discord.Embed(title="Soundboard Sounds", description="", colour=discord.Colour.dark_gold())
+        embed = discord.Embed(title="Soundboard Sounds", description="", colour=discord.Colour.dark_gold()) # customize the discord embedded message
 
         for sound in soundboardDir:
             sound = sound.replace('.mp3','') # strings are immutable, cannot be changed
