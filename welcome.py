@@ -26,6 +26,9 @@ class Intercom(commands.Cog): # declare a class named player
                 for guild_id in self.voice_states: # for each guild the bot is in iterate through the voice_states list
                     if guild_id is member.guild.id: # if the guild id matches the guild id of the member
 
+
+                        ## this block of code is for the software developer to check the values of various stored variables for the bot and to aid with debugging
+
                         print("This is the guild id: " + str(guild_id))
                         self.voice_states[guild_id] = member.voice # assign the voice_client of that server the new voice_status, we now have the information of the voice
                         print(self.voice_states[guild_id])
@@ -108,10 +111,11 @@ class Intercom(commands.Cog): # declare a class named player
         if ctx.voice_client is not None and user.voice.channel != ctx.voice_client.channel: # if the bot is in a channel AND the user is not in the same channel
             return await ctx.send("**Beep Boop is not in your current Voice Channel.**")
 
+        # customize the embed discord message that will be posted into the chat
         poll = discord.Embed(title=f"Beep Boop Soundboard Sounds", description="**Use '!sb {sound}' to play the sound you want.**", colour=discord.Colour.blue())
         poll.add_field(name="Previous", value = ":arrow_left:")
         poll.add_field(name = "Next", value = ":arrow_right")
-#        poll.set_footer(text="Voting ends in 15 seconds.")
+        poll.set_footer(text="Voting ends in 15 seconds.")
 
         poll_msg = await ctx.send(embed=poll) # only returns temporary message, we need to get the cached message to get the reactions,
         poll_id = poll_msg.id
@@ -134,11 +138,11 @@ class Intercom(commands.Cog): # declare a class named player
 
                         reacted.append(user.id)
 
-        skip = False
+        skip = False # initialize a default variable
 
         if votes[u"\u2705"] > 0:
             if votes[u"\U0001F6AB"] == 0 or votes[u"\u2705"] / (votes[u"\U0001F6AB"] + votes[u"\u2705"]) > 0.49: # if no one voted no, or if the percentage of people who want to skip is > 50%
-                skip = True # reset the value of skip to true
+                skip = True # set the value of skip to true
                 embed = discord.Embed(title="Skip Successful", description="***Voting to skip the current song was successful, skipping now.***", colour= discord.Colour.dark_gold())
 
 
@@ -197,12 +201,3 @@ class Intercom(commands.Cog): # declare a class named player
     def setup(self):
         for guild in self.bot.guilds: # for each server that the bot is in, create an empty list variable to store songs for the queue
             self.voice_states[guild.id] = [] # creates a list containing the voice client for each server that the bot is in
-
-
-    #NEED TO UPDATE self.voice_states() when the status of the bot changes (for each server)
-        # INCLUDES CONNECT, DISCONNECT, CHANGE OF CHANNEL
-
-
-        # if self.bot.voice_states.id is
-        # if before is None or before.channel is not : # if the user was not in a voice channel,
-        # return

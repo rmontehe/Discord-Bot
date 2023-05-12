@@ -50,6 +50,7 @@ class Player(commands.Cog): # declare a class named player
         # FFMpeg is an audio format that is easy for discord to use
         # I would personally prefer to use these functions because it allows me to alter the bot's audio from within the code
         # after the song is finished playing, the bot will then check song queue. if there is a songe, it will play the song
+
         ctx.voice_client.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(url)), after=lambda error: self.bot.loop.create_task(self.check_queue(ctx)))
         await ctx.send(f"**Now playing: __{song.title}__**")
         ctx.voice_client.source.volume = .05
@@ -144,15 +145,14 @@ class Player(commands.Cog): # declare a class named player
 
     @commands.command()
     async def queue(self, ctx): # display the current server/guild's queue
-        if len(self.song_queue_name[ctx.guild.id]) == 0:
-            return await ctx.send("**There are currently no songs in the queue.**")
-        embed = discord.Embed(title="Song Queue", description="", colour=discord.Colour.dark_gold())
+        if len(self.song_queue_name[ctx.guild.id]) == 0: # if there are no songs queued up
+            return await ctx.send("**There are currently no songs in the queue.**") # send a message into the discord channel
+        embed = discord.Embed(title="Song Queue", description="", colour=discord.Colour.dark_gold()) # customize embed message that will be sent into the channel
         i = 1
-        for name in self.song_queue_name[ctx.guild.id]:
-            embed.description += f"({i}) {name}\n"
-            i += 1
-        embed.set_footer(text="Thanks for using me!")
-        await ctx.send(embed=embed)
+        for name in self.song_queue_name[ctx.guild.id]: # for each song in the queue
+            embed.description += f"({i}) {name}\n" # append the song name to the messsage
+            i += 1 # iterate
+        await ctx.send(embed=embed) # send the embed message
 
     @commands.command()
     async def skip(self, ctx):
