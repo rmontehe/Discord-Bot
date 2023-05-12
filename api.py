@@ -32,7 +32,6 @@ class API_Vendor(commands.Cog): # declare a class named API_Vendor
             joke = json_data["joke"]
             return(joke)
 
-
     def get_roast(): # returns a roast from the evil insult generator api
 
         response = requests.get(os.getenv('ROAST_API')) # requests for roast from the evil insult generator API
