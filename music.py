@@ -13,12 +13,20 @@ class Player(commands.Cog): # declare a class named player
         self.setup()
         print("Initializing Player...")
 
+    #########################################
+    ########## Defining Functions ###########
+    #########################################
+
     def setup(self):
         for guild in self.bot.guilds: # for each server that the bot is in, create an empty list variable to store songs for the queue
             self.song_queue_url[guild.id] = [] # creates a song_url queue list for each server that the bot is in
             self.song_queue_name[guild.id] = [] # creates a song_name queue list for each server that the bot is in
 
+    #########################################
+    ########## Defining Commands ############
+    #########################################
 
+    @commands.command()
     async def check_queue(self,ctx):
         if len(self.song_queue_url[ctx.guild.id]) > 0: # if the length of the song queue is > 0, in other words if there is a song in queue for this particular server
             await self.play_song(ctx, self.song_queue_url[ctx.guild.id][0]) # play the first song in the queue list for this particular server
@@ -28,7 +36,7 @@ class Player(commands.Cog): # declare a class named player
         else:
             return
 
-
+    @commands.command()
     async def search_song(self, amount, song, get_url=False): # amount = amount of songs we want, the song you want to look up, whether you want to get the url
 
         # we don't want the bot to wait, so we use loop.run_in_executor() because we don't want to block the bot function and have the bot wait
@@ -42,6 +50,7 @@ class Player(commands.Cog): # declare a class named player
         # return the webpage_url for each entry in the info list if get_url == True, return the info list if get_url == False
         return [entry for entry in info["entries"]] if get_url else info
 
+    @commands.command()
     async def play_song(self, ctx, song): # ctx is the Context, song is the url link of the song that you want to play
         song = pafy.new(song)
         url = song.getbestaudio().url

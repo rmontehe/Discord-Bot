@@ -17,6 +17,9 @@ class Intercom(commands.Cog): # declare a class named player
         self.setup()
         print("Initializing Intercom...")
 
+        #########################################
+        ########## Registering Event ############
+        #########################################
 
         @self.bot.event
         async def on_voice_state_update(member, before, after): # register the event when a A MEMBER'S VOICE STATE CHANGES
@@ -98,8 +101,18 @@ class Intercom(commands.Cog): # declare a class named player
                     print(f"{member.name}'s ID is {member.id}") # this information is important for accessing a directory (named after their ID) containing sound files
 
 
+    #########################################
+    ########## Defining Functions ###########
+    #########################################
 
+    def setup(self):
+        for guild in self.bot.guilds: # for each server that the bot is in, create an empty list variable to store songs for the queue
+        self.voice_states[guild.id] = [] # creates a list containing the voice client for each server that the bot is in
+        
 
+    #########################################
+    ########## Defining Commands ############
+    #########################################
 
     @commands.command()
     async def test(self, ctx):
@@ -195,9 +208,3 @@ class Intercom(commands.Cog): # declare a class named player
 
         else:
             return
-
-
-
-    def setup(self):
-        for guild in self.bot.guilds: # for each server that the bot is in, create an empty list variable to store songs for the queue
-            self.voice_states[guild.id] = [] # creates a list containing the voice client for each server that the bot is in

@@ -16,6 +16,10 @@ class Soundboard(commands.Cog): # declare a class named soundboard
         self.setup()
         print("Initializing Soundboard...")
 
+    #########################################
+    ########## Defining Functions ###########
+    #########################################
+
 
     async def play_sound(self, voice_client, sound): # ctx is the Context, song is the url link of the song that you want to play
 
@@ -53,9 +57,9 @@ class Soundboard(commands.Cog): # declare a class named soundboard
             self.voice_states[guild.id] = [] # creates a list containing the voice client for each server that the bot is in
 
 
-#########################################
-####### Defining User Commands  #########
-#########################################
+    ####################################
+    ####### Defining Commands  #########
+    ####################################
 
     @commands.command()
     async def sb(self, ctx, sound): # define a command that allows users to indicate a sound that they would like played
